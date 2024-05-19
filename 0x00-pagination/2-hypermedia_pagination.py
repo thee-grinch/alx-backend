@@ -38,12 +38,23 @@ class Server:
         start, end = index_range(page, page_size)
         return self.dataset()[start:end]
     
-    def get_hyper(self, page: int = 1, page_size: int = 10) -> List[List]:
+   
+    def get_hyper(self, page: int = 1, page_size: int = 10) -> dict:
         """Get page with hypermedia pagination
         """
         assert isinstance(page, int) and page > 0
         assert isinstance(page_size, int) and page_size > 0
-
         start, end = index_range(page, page_size)
+        dataset_page = self.get_page(page, page_size)
         data = self.dataset()
-        return data[start:end] + [data[end]] if end < len(data) else data[start:end]
+        next_page = page + 1 if end < len(data) else None
+        prev_page = page - 1 if page > 1 else None
+        total_pages = math.ceil(len(data) / page_size)
+        return {
+            'page_size': len(dataset_page),
+            'page': page,
+            'data': dataset_page,
+            'next_page': next_page,
+            'prev_page': prev_page,
+            'total_pages': total_pages
+        }
